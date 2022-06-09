@@ -138,7 +138,7 @@ class TextWriter:
 
 def main():
     font_color = '#000000'
-    font_size = 14 * 3
+    font_size = 13 * 3
     content = '发多少防守打法水电'
     t_top, t_left, t_width, t_height = 50+5, 500+5, 250, 100
     # font_type = '../data/font/SourceHanSans-Normal.ttc'
