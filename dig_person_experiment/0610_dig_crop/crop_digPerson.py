@@ -17,7 +17,7 @@ def main():
     frame_normal, frame_mask = frame[:, :half_w, :], frame[:, half_w:, :]
     crop = {'top': 55, 'left': 39, 'width': 113, 'circle': 'true', 'height': 113}
     cv2.imwrite('../data/formal.png', frame_normal)
-    os.system(f"ffmpeg -i ../data/formal.png -vf 'drawbox=x=39:y=55:w=113:h=113:color=red@0.5' ../data/drawbox.png")
+    os.system(f"ffmpeg -i ../data/formal.png -vf 'drawbox=x=238:y=100:w=222:h=222:color=red@0.5' ../data/drawbox.png")
     # crop_frame = frame_normal[crop['top']:crop['top'] + crop['height'],
     #              crop['left']:crop['left'] + crop['width']]
     # cv2.imwrite('../data/after_crop.png', crop_frame)
