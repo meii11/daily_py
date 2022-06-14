@@ -139,21 +139,23 @@ class TextWriter:
 def main():
     font_color = '#000000'
     font_size = 13 * 3
-    content = '发多少防守打法水电'
-    t_top, t_left, t_width, t_height = 50+5, 500+5, 250, 100
+    content = '   发多少防守打法水电'
+    t_top, t_left, t_width, t_height = 50 + 5, 500 + 5, 250, 100
     # font_type = '../data/font/SourceHanSans-Normal.ttc'
     font_type = '../data/font/simhei.ttf'
 
     # text_loc =
     # output_dir = '../data/test_0609_SourceHanSans.png'
-    output_dir = '../data/test_0609_simhei.png'
+    output_dir = '../data/test_0614_simhei.png'
     TextWriter(content=content, loc=[t_top, t_left, t_width, t_height], font_type=font_type, fontsize=font_size,
-               font_color=font_color, input_dir='../data/white_bkg.jpg', output_dir=output_dir).run()
+               font_color=font_color, input_dir='../data/white_bkg_1920_1080.jpg', output_dir=output_dir).run()
 
     # output_dir_box = '../data/test_0609_SourceHanSans_box.png'
-    output_dir_box = '../data/test_0609_simhei_box.png'
+    output_dir_box = '../data/test_0614_simhei_box.png'
     # os.system(f"ffmpeg -i {output_dir} -vf 'drawbox=500:50:250:100:red' {output_dir_box}")
     os.system(f"ffmpeg -y -i {output_dir} -vf 'drawbox=x=500:y=50:w=250:h=100:color=red@0.5' {output_dir_box}")
+
+
 if __name__ == '__main__':
     # n = ImgText(
     #     "小编为大家讲解一下几位抗日名将的故事，第一位抗日名将杨靖宇，他不仅是白山黑水间的铁血将军，也是信念坚定的共产党员。他的威名，让敌人闻风丧胆，更令中国人骄傲。在1940"
@@ -163,7 +165,6 @@ if __name__ == '__main__':
     #     "月的一天，刘胡兰配合武工队员将“当地一害”石佩怀处死，阎锡山匪军恼羞成怒，决定实施报复行动。1947年1月12日，阎军突然袭击云周西村，刘胡兰因叛徒告密而被捕。刘胡兰烈士牺牲时，尚未满15"
     #     "周岁，是已知的中国共产党女烈十中年龄最小的一个。毛泽东在指挥全国战局之余，为刘胡兰题词:“生的伟大，死的光荣!")
     # n.draw_text()
-
 
     # aa ={'fps': 30, 'stories': [{'fps': 30, 'order': 1, 'lay_out': {'text': [
     #     {'top': 50, 'font': '黑体', 'left': 500, 'color': '#000000', 'width': 250, 'height': 100, 'content': '发多少防守打法水电', 'duration': 5, 'font_size': 13, 'layer_order': 2, 'is_animation': 'false'}
