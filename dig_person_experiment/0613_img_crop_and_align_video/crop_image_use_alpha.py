@@ -7,7 +7,7 @@ import os
 
 import cv2
 import numpy as np
-
+import math
 
 def main():
     """
@@ -20,37 +20,53 @@ def main():
     w_bkg = '../data/white_bkg_1080_1920.jpg'
     # alpha_img = np.full(())
     img_info = cv2.imread(img).shape[:2]
-    # 925 * 520
-    crop_size = {"top": -202, "left": 512, "width": 412, "height": 495}
     img_width = img_info[1]
     img_height = img_info[0]
-    # c_height = crop_size['top'] + crop_size['height'] if crop_size['top'] > 0 else -crop_size['top'] + crop_size[
-    #     'height']
-    # c_width = crop_size['left'] + crop_size['width'] if crop_size['left'] > 0 else -crop_size['left'] + crop_size[
-    #     'width']
+
+
+    # crop_info_cal
+    # 925 * 520
+    crop_size = {"top": -202, "left": 512, "width": 412, "height": 495}
+
+    # 三种情况计算crop的top\left\height\width
+    # situation 1: left<0 top>0
+    if crop_size['left'] < 0 and crop_size['top'] > 0:
+        c_left = 0
+        c_top = crop_size['top']
+
+        c_height = min(crop_size['height'], img_height-crop_size['top'])
+        c_width = min(crop_size['width']+crop_size['left'], img_width)
+    # situation 2: left>0 top<0
+    elif crop_size['left'] > 0 and crop_size['top'] < 0:
+        c_top = 0
+        c_left = crop_size['left']
+
+        c_heigth = min(crop_size['height']+crop_size['top'], img_height)
+        c_width = min(img_width-crop_size['left'], crop_size['width'])
+    # situation 2: left<0 top<0
+    elif crop_size['left'] < 0 and crop_size['top'] < 0:
+        c_top = 0
+        c_left = 0
+
+        c_heigth = min(crop_size['height']+crop_size['top'], img_height)
+        c_width = min(crop_size['width']+crop_size['left'], img_width)
+    else:
+        pass
     alpha_img = np.full((crop_size['height'], crop_size['width'], 4), 255)
     cv2.imwrite('../data/alpha.png', alpha_img)
     alpha_img = '../data/alpha.png'
 
-    if crop_size['top'] < 0:
-    new_c_height = min(crop_size['height'] if crop_size['top'] > 0 else crop_size['top'] + crop_size['height'],
-                       img_height)
-    new_c_width = min(crop_size['width'] if crop_size['left'] > 0 else crop_size['left'] + crop_size['width'],
-                      img_width)
-    new_top = -crop_size['top'] if crop_size['top'] < 0 else 0
-    new_left = -crop_size['left'] if crop_size['left'] < 0 else 0
-
     # crop img
     resize_img = '../data/crop_dog.png'
-    os.system(f"ffmpeg -y -i {img} -vf crop=w={new_c_width}:h={new_c_height}:x={new_left}:y={new_top} {resize_img}")
+    os.system(f"ffmpeg -y -i {img} -vf crop=w={c_width}:h={c_heigth}:x={c_left}:y={c_top} {resize_img}")
 
     # overlay
     os.system(
-        f"ffmpeg -y -i {alpha_img} -i {resize_img} -filter_complex 'overlay={new_left}:{new_top}' -loglevel error ../data/crop_dog_f.png")
+        f"ffmpeg -y -i {alpha_img} -i {resize_img} -filter_complex 'overlay={abs(crop_size['left'])}:{abs(crop_size['top'])}' -loglevel error ../data/crop_dog_f.png")
 
     # overlay on bkg
     os.system(
-        f"ffmpeg -y -i {w_bkg} -i ../data/crop_dog_f.png -filter_complex 'overlay={new_left}:{new_top}' -loglevel error ../data/crop_dog_ff.png")
+        f"ffmpeg -y -i {w_bkg} -i ../data/crop_dog_f.png -filter_complex 'overlay={467}:{622}' -loglevel error ../data/crop_dog_ff.png")
 
     # code = os.system(
     #     f"ffmpeg -y -threads {t_num} -i {dir_m1} -i {dir_m2} "
