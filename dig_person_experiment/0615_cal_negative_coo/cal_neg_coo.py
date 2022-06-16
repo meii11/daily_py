@@ -24,7 +24,7 @@ class cal_negative_coo:
             f_top = full_coo['top']
             f_left = full_coo['left'] - crop_coo['left']
 
-            resize_width = full_coo['width']
+            resize_width = c_width * full_coo['width'] // crop_coo['width']
             resize_height = c_height * full_coo['height'] // crop_coo['height']
         # situation 2: left>0 top<0
         elif crop_coo['left'] >= 0 and crop_coo['top'] < 0:
@@ -37,10 +37,10 @@ class cal_negative_coo:
             f_top = full_coo['top'] - crop_coo['top']
             f_left = full_coo['left']
 
-            resize_height = full_coo['height']
             resize_width = c_width * full_coo['width'] // crop_coo['width']
+            resize_height = c_height * full_coo['height'] // crop_coo['height']
 
-        # situation 2: left<0 top<0
+        # situation 3: left<0 top<0
         elif crop_coo['left'] < 0 and crop_coo['top'] < 0:
             c_top = 0
             c_left = 0
@@ -53,23 +53,34 @@ class cal_negative_coo:
 
             resize_width = c_width * full_coo['width'] // crop_coo['width']
             resize_height = c_height * full_coo['height'] // crop_coo['height']
+        # situation 4: all > 0
+        else:
+            c_left = crop_coo['left']
+            c_top = crop_coo['top']
+
+            c_height = min(crop_coo['height'], img_height-crop_coo['top'])
+            c_width = min(crop_coo['width'], img_width-crop_coo['left'])
+
+            resize_width = c_width * full_coo['width'] // crop_coo['width']
+            resize_height = c_height * full_coo['height'] // crop_coo['height']
 
         # step1 crop material
-        resize_material = os.path.splitext(material_dir)[0] + '_resize' + os.path.splitext(material_dir)[1]
+        resize_material = './doggy' + '_resize' + os.path.splitext(material_dir)[1]
         os.system(
             f"ffmpeg -y -i {material_dir} -vf crop=w={c_width}:h={c_height}:x={c_left}:y={c_top} -loglevel error {resize_material}")
 
         os.system(
-            f"ffmpeg -y -i {resize_material} -vf scale={resize_height}:{resize_width} -loglevel error {output_dir}")
+            f"ffmpeg -y -i {resize_material} -vf scale={resize_width}:{resize_height} -loglevel error {output_dir}")
         pass
 
 
 def main():
     cal = cal_negative_coo()
-    image_dir = '../data/new_dog.png'
-    crop_coo = {'top': -202, 'left': 560, 'width': 365, 'height': 469}
-    full_coo = {'top': 120, 'left': 535, 'width': 315, 'height': 405}
-    output_dir = './doggy.png'
+    image_dir = 'saber.jpg'
+    crop_coo = {'top': -603, 'left': 0, 'width': 1924, 'height': 2309}
+    full_coo = {'top': 420, 'left': 87, 'width': 250, 'height': 300}
+
+    output_dir = './saber123.png'
     cal.preprocess(image_dir, crop_coo, full_coo, output_dir)
 
 
