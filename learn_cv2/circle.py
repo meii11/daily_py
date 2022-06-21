@@ -31,10 +31,11 @@ def main():
     cir = cv2.resize(cir, [740, 740])
     mask = cir >= 200.0
 
-    alpha = np.array(mask[:,:,0] * alpha_channel, dtype=b_channel.dtype)
+    alpha = np.array(mask[:, :, 0] * alpha_channel, dtype=b_channel.dtype)
     img_BGRA = cv2.merge((b_channel, g_channel, r_channel, alpha))
 
     cv2.imwrite("ccc.png", img_BGRA)
+
 
 if __name__ == '__main__':
     main()
