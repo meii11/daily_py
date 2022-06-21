@@ -116,6 +116,7 @@ class Cir:
 
         # step2 拼起来
         self._concat(bkg='ccc.png', target='ccc1.png')
+
     def _to_circle(self, img):
         img_info = cv2.imread(img, cv2.IMREAD_UNCHANGED)
         height, width = img_info.shape[:2]
@@ -133,9 +134,9 @@ class Cir:
         cv2.imwrite("ccc1.png", img_BGRA)
 
     def _concat(self, bkg, target):
-        os.system(f"ffmpeg -i {bkg} -i {target} -filter_complex overlay=0:0 final.png")
-
-
+        # os.system(f"ffmpeg -i {bkg} -i {target} -filter_complex overlay=0:0 final.png")
+        # os.system(f"ffmpeg -i 123.jpg -i final.png -filter_complex overlay=0:0 final1.png")
+        os.system("ffmpeg -y -i final1.png -vf crop=600:600:0:0 final12.png")
 def main():
     # target_size = [500, 500]
     # draw_circle()
