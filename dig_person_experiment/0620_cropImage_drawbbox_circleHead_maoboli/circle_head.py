@@ -111,13 +111,14 @@ class Cir:
         # os.system("ffmpeg -y -i ./circle_data/bkg_square.png -vf scale=500:500 ./circle_data/bkg_500.png")
         # target_img = './circle_data/qiyu_500.png'
         #
-        # # step1 需要将target和背景套出圆形
-        # self._to_circle('./circle_data/bkg_500.png')
+        # step1 需要将target和背景套出圆形
+        self._to_circle('white.png')
 
         # step2 拼起来
         # self._concat(bkg='ccc.png', target='./circle_data/ccc1.png')
 
         self._mao()
+
     def _to_circle(self, img):
         img_info = cv2.imread(img, cv2.IMREAD_UNCHANGED)
         height, width = img_info.shape[:2]
@@ -135,7 +136,7 @@ class Cir:
 
         c_alpha = np.array(c_mask[:, :, 0] * alpha_channel, dtype=b_channel.dtype)
         img_BGRA = cv2.merge((b_channel, g_channel, r_channel, c_alpha))
-        cv2.imwrite("ccc.png", img_BGRA)
+        cv2.imwrite("white_circle.png", img_BGRA)
 
     def _mao(self):
         src = cv2.imread('./circle_data/bkg.jpg')
@@ -145,10 +146,10 @@ class Cir:
         offsets = 10
         random_num = 0
 
-        for y in range(rows-offsets):
-            for x in range(cols-offsets):
+        for y in range(rows - offsets):
+            for x in range(cols - offsets):
                 random_num = np.random.randint(0, offsets)
-                dst[y, x] = src[y+random_num, x+random_num]
+                dst[y, x] = src[y + random_num, x + random_num]
 
         cv2.imwrite('test.png', dst)
 
