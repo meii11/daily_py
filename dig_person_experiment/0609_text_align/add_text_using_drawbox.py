@@ -99,19 +99,19 @@ class TextWriter:
     def _perprocess(self):
         text_tools = TextTools(font=self.font_type, font_size=self.font_size, width=self.t_width)
         allText, total_height, line_height, total_lines = text_tools.split_text(self.content)
-        if total_lines == 1:  # 如果是一行
-            con = self.content.replace(",", "\\\\\\,").replace("]", "\\\\\\]").replace("[", "\\\\\\["). \
-                replace(";", "\\\\\\;").replace(":", "\\\\\\:").replace("<", "\\\\\\<").replace(">", "\\\\\\>") \
-                .replace("?", "\\\\\\?").replace(".", "\\\\\\.").replace("\n", "")
-            code = os.system(
-                f"ffmpeg -y -threads {t_num} -i {self.intput_dir} -vf 'drawtext=text={self.content}:expansion=normal:fontfile={self.font_type}:y={self.t_top}:x=({self.t_width}-text_w)/2+{self.t_left}:fontcolor={self.font_color}:fontsize={self.font_size}' -loglevel error {self.output_dir}")
+        # if total_lines == 1:  # 如果是一行
+        #     con = self.content.replace(",", "\\\\\\,").replace("]", "\\\\\\]").replace("[", "\\\\\\["). \
+        #         replace(";", "\\\\\\;").replace(":", "\\\\\\:").replace("<", "\\\\\\<").replace(">", "\\\\\\>") \
+        #         .replace("?", "\\\\\\?").replace(".", "\\\\\\.").replace("\n", "")
+        #     code = os.system(
+        #         f"ffmpeg -y -threads {t_num} -i {self.intput_dir} -vf 'drawtext=text={self.content}:expansion=normal:fontfile={self.font_type}:y={self.t_top}:x=({self.t_width}-text_w)/2+{self.t_left}:fontcolor={self.font_color}:fontsize={self.font_size}' -loglevel error {self.output_dir}")
+        # else:
+        if self.media_type == 'png':  # 图片直接写即可
+            note_img = Image.open(self.intput_dir).convert("RGB")
+            img = text_tools.draw_text(allText=allText, line_height=line_height, input_dir=note_img,
+                                       font_color=self._hex_to_rgb(self.font_color), pos=[self.t_left, self.t_top])
+            img.save(self.output_dir)
         else:
-            if self.media_type == 'png':  # 图片直接写即可
-                note_img = Image.open(self.intput_dir).convert("RGB")
-                img = text_tools.draw_text(allText=allText, line_height=line_height, input_dir=note_img,
-                                           font_color=self._hex_to_rgb(self.font_color), pos=[self.t_left, self.t_top])
-                img.save(self.output_dir)
-            else:
                 video_info = ffmpeg.probe(self.intput_dir)['streams'][0]
                 out_size = (video_info['width'], video_info['height'])
                 v_writer = cv2.VideoWriter(self.output_dir, cv2.VideoWriter_fourcc(*'mp4v'), 25.0, tuple(out_size))
@@ -138,22 +138,22 @@ class TextWriter:
 
 def main():
     font_color = '#000000'
-    font_size = 13 * 3
-    content = '   发多少防守打法水电'
-    t_top, t_left, t_width, t_height = 50 + 5, 500 + 5, 250, 100
+    font_size = 14 * 3
+    content = 'abc,123，测试字体拼音'
+    t_top, t_left, t_width, t_height = 200, 0, 500, 100
     # font_type = '../data/font/SourceHanSans-Normal.ttc'
-    font_type = '../data/font/simhei.ttf'
+    font_type = '../data/font/Hanzi-Pinyin-Font.top.ttf'
 
     # text_loc =
     # output_dir = '../data/test_0609_SourceHanSans.png'
-    output_dir = '../data/test_0614_simhei.png'
+    output_dir = '1234.png'
     TextWriter(content=content, loc=[t_top, t_left, t_width, t_height], font_type=font_type, fontsize=font_size,
-               font_color=font_color, input_dir='../data/white_bkg_1920_1080.jpg', output_dir=output_dir).run()
+               font_color=font_color, input_dir='123.png', output_dir=output_dir).run()
 
-    # output_dir_box = '../data/test_0609_SourceHanSans_box.png'
-    output_dir_box = '../data/test_0614_simhei_box.png'
-    # os.system(f"ffmpeg -i {output_dir} -vf 'drawbox=500:50:250:100:red' {output_dir_box}")
-    os.system(f"ffmpeg -y -i {output_dir} -vf 'drawbox=x=500:y=50:w=250:h=100:color=red@0.5' {output_dir_box}")
+    # # output_dir_box = '../data/test_0609_SourceHanSans_box.png'
+    # output_dir_box = '../data/test_0614_simhei_box.png'
+    # # os.system(f"ffmpeg -i {output_dir} -vf 'drawbox=500:50:250:100:red' {output_dir_box}")
+    # os.system(f"ffmpeg -y -i {output_dir} -vf 'drawbox=x=500:y=50:w=250:h=100:color=red@0.5' {output_dir_box}")
 
 
 if __name__ == '__main__':
