@@ -171,8 +171,8 @@ class TextWriter:
                                                   alignment=self.alignment) + self.t_left
                     input_dir = os.path.join(base_dir, f'writer_{ind}.' + self.media_type) if ind != 0 else \
                         self.intput_dir
-                    output_dir = os.path.join(base_dir, f'writer_{ind + 1}.' + self.media_type) \
-                        if ind < allText_length - 1 else self.output_dir
+                    output_dir = os.path.join(base_dir, f'writer_{ind+1}.'+self.media_type) \
+                        if ind < allText_length-1 else self.output_dir
                     self._writer(allText=text,
                                  new_left=new_left,
                                  new_top=new_top,
@@ -209,7 +209,7 @@ class TextWriter:
 
             # write
             os.system(
-                f"/usr/bin/ffmpeg -y -i {input_dir} -vf \"ass={ass_dir}:fontsdir=./font_library/\" -loglevel error {output_dir}")
+                f"/usr/local/bin/ffmpeg -y -i {input_dir} -vf \"ass={ass_dir}:fontsdir=./font_library/\" -loglevel error {output_dir}")
             os.system(f"rm -f {ass_dir}")
 
         else:
@@ -225,21 +225,20 @@ class TextWriter:
             ass_dir = os.path.join(base_dir, f'{layer_order}_subtitles.ass')
             write_ass(bkg_info=bkg_info, text_info=text_info, output_dir=ass_dir)
             os.system(
-                f"/usr/bin/ffmpeg -y -i {input_dir} -vf \"ass={ass_dir}:fontsdir=./font_library/\" -loglevel error {output_dir}")
+                f"/usr/local/bin/ffmpeg -y -i {input_dir} -vf \"ass={ass_dir}:fontsdir=./font/\" -loglevel error {output_dir}")
             os.system(f"rm -f {ass_dir}")
 
-        # os.system(
-        #     f"ffmpeg -y -i {self.output_dir} -vf 'drawbox=x={self.t_left}:y={self.t_top}:w={self.t_width}:"
-        #     f"h={self.t_height}:color=black' -loglevel error "
-        #     f"./result/{self.font[0].split('.')[0]}_bbox.png")
-        # os.system(
-        #     f"ffmpeg -y -i ./data_for_test/ff.png -vf 'drawbox=x={self.t_left}:y={self.t_top}:w={self.t_width // 2}:h={self.t_height}:color=black' -loglevel error "
-        #     f"./result/fff_{}.png")
+        os.system(
+            f"ffmpeg -y -i {self.output_dir} -vf 'drawbox=x={self.t_left}:y={self.t_top}:w={self.t_width}:h={self.t_height}:color=black' -loglevel error "
+            f"./data_for_test/ff.png")
+        os.system(
+            f"ffmpeg -y -i ./data_for_test/ff.png -vf 'drawbox=x={self.t_left}:y={self.t_top}:w={self.t_width // 2}:h={self.t_height}:color=black' -loglevel error "
+            f"./data_for_test/fff.png")
 
     def _count_offset(self, text_width, max_width, alignment):
         if alignment == '1':  # 居中
             space_text = (self.t_width - max_width) // 2
-            return (max_width - text_width[0]) // 2 + space_text
+            return (max_width-text_width[0])//2 + space_text
         else:  # 右对齐
             space_text = (self.t_width - max_width)
             return max_width - text_width[0] + space_text
@@ -338,18 +337,13 @@ if __name__ == '__main__':
          'underline': 'true'},
     # white_bkg = np.full((1080,1920,3), 255)
     # cv2.imwrite('white.png', white_bkg)
-    font_pair = json.loads(open('font_list.txt', 'r').readline())
-
-    for font, font_name in font_pair.items():
-        font_n = '_'.join(font.split(' ')).split('.')[0]
-        output_dir = f"./result/font_{font_n}.png"
-        TextWriter(content='王成，皓文是两个名字123',
-                   # self.t_top, self.t_left, self.t_width, self.t_height
-                   loc=[363, 843, 428, 228],
-                   font=['阿朱泡泡体.ttf', 'AZPPT_1_1436212_19'], fontsize=14 * 3,
-                   font_type='000',
-                   font_color='#000000', input_dir='./data_for_test/white.png',
-                   output_dir='result/123.png').run()
+    TextWriter(content='你好你好你好你好你好你\n好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好',
+               # self.t_top, self.t_left, self.t_width, self.t_height
+               loc=[363, 843, 428, 228],
+               font=['simhei.ttf', 'SimHei'], fontsize=14 * 3,
+               font_type='000',
+               font_color='#000000', input_dir='./data_for_test/white.png',
+               output_dir='./data_for_test/test.png').run()
 
     """
     {'top': 363, 'font': '黑体', 'left': 843, 'color': '#000000', 'width': 428, 'height': 228,
