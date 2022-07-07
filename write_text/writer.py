@@ -73,6 +73,8 @@ class TextTools:
         for text in content.split('\n'):
             duanluo, line_height, line_count, line_width = self.get_paragraph(text)
             max_line_height = max(line_height, max_line_height)
+            if not line_width:
+                line_width.append(0)
             max_line_width = max(max(line_width), max_line_width)  # 记录最长的文本长度
             total_lines += line_count
             all_line_width.extend(line_width)
@@ -84,8 +86,11 @@ class TextTools:
 
         allText = []
         for text in alltext:
+            if len(text) == 2 and text[0] == text[1] == '':
+                text = [' ']
             allText.extend(text)
-            allText.remove("")
+            if '' in allText:
+                allText.remove('')
 
         return allText, total_height, line_height, total_lines, max_line_width, all_line_width
 
@@ -104,7 +109,7 @@ class TextTools:
 
 
 class TextWriter:
-    def __init__(self, content, loc, font, font_type, fontsize, font_color, input_dir, output_dir, alignment='0'):
+    def __init__(self, content, loc, font, font_type, fontsize, font_color, input_dir, output_dir, alignment='1'):
         self.content = content
         self.t_top, self.t_left, self.t_width, self.t_height = loc
         self.t_top += 5
@@ -127,7 +132,7 @@ class TextWriter:
         self._perprocess()
 
     def _perprocess(self):
-        text_tools = TextTools(font=os.path.join("./font_library", self.font[0]), font_size=self.font_size,
+        text_tools = TextTools(font=os.path.join("../../font_library", self.font[0]), font_size=self.font_size,
                                width=self.t_width)
         allText, total_height, line_height, total_lines, max_line_width, all_line_width = text_tools.split_text(
             self.content)
@@ -146,6 +151,10 @@ class TextWriter:
             new_top = 0
             base_dir = os.path.split(self.output_dir)[0]
             for text in allText:
+                if text == ' ':
+                    height_record += line_height
+                    ind += 1
+                    continue
                 _, _, line_height, _, _, all_line_width = text_tools.split_text(text)
                 if all_line_width[0] == max_line_width:  # 如果是满行，则直接写
                     new_top = stardand_top + height_record
@@ -209,7 +218,7 @@ class TextWriter:
 
             # write
             os.system(
-                f"/usr/bin/ffmpeg -y -i {input_dir} -vf \"ass={ass_dir}:fontsdir=./font_library/\" -loglevel error {output_dir}")
+                f"/usr/local/bin/ffmpeg -y -i {input_dir} -vf \"ass={ass_dir}:fontsdir=../../font_library/\" -loglevel error {output_dir}")
             os.system(f"rm -f {ass_dir}")
 
         else:
@@ -225,16 +234,8 @@ class TextWriter:
             ass_dir = os.path.join(base_dir, f'{layer_order}_subtitles.ass')
             write_ass(bkg_info=bkg_info, text_info=text_info, output_dir=ass_dir)
             os.system(
-                f"/usr/bin/ffmpeg -y -i {input_dir} -vf \"ass={ass_dir}:fontsdir=./font_library/\" -loglevel error {output_dir}")
+                f"/usr/local/bin/ffmpeg -y -i {input_dir} -vf \"ass={ass_dir}:fontsdir=../../font_library/\" -loglevel error {output_dir}")
             os.system(f"rm -f {ass_dir}")
-
-        # os.system(
-        #     f"ffmpeg -y -i {self.output_dir} -vf 'drawbox=x={self.t_left}:y={self.t_top}:w={self.t_width}:"
-        #     f"h={self.t_height}:color=black' -loglevel error "
-        #     f"./result/{self.font[0].split('.')[0]}_bbox.png")
-        # os.system(
-        #     f"ffmpeg -y -i ./data_for_test/ff.png -vf 'drawbox=x={self.t_left}:y={self.t_top}:w={self.t_width // 2}:h={self.t_height}:color=black' -loglevel error "
-        #     f"./result/fff_{}.png")
 
     def _count_offset(self, text_width, max_width, alignment):
         if alignment == '1':  # 居中
@@ -336,23 +337,12 @@ if __name__ == '__main__':
          'duration': 5,
          'font_size': 14, 'layer_order': 2, 'is_animation': 'false', 'bold': 'true', 'italic': 'true',
          'underline': 'true'},
-    # white_bkg = np.full((1080,1920,3), 255)
-    # cv2.imwrite('white.png', white_bkg)
-    font_pair = json.loads(open('font_list.txt', 'r').readline())
-
-    for font, font_name in font_pair.items():
-        font_n = '_'.join(font.split(' ')).split('.')[0]
-        output_dir = f"./result/font_{font_n}.png"
-        TextWriter(content='王成，皓文是两个名字123',
-                   # self.t_top, self.t_left, self.t_width, self.t_height
-                   loc=[363, 843, 428, 228],
-                   font=['阿朱泡泡体.ttf', 'AZPPT_1_1436212_19'], fontsize=14 * 3,
-                   font_type='000',
-                   font_color='#000000', input_dir='./data_for_test/white.png',
-                   output_dir='result/123.png').run()
-
-    """
-    {'top': 363, 'font': '黑体', 'left': 843, 'color': '#000000', 'width': 428, 'height': 228,
-                  'content': '你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你',
-                  'duration': 5, 'font_size': 14, 'layer_order': 7, 'is_animation': 'false'}
-    """
+    # os.system(
+    #     f"/usr/local/bin/ffmpeg -y -i ./data_for_test/white.png -vf \"ass=result/0_subtitles.ass:fontsdir=../../font_library/\" -loglevel error 222.png")
+    TextWriter(content='童趣屋：\n\n为小朋友打造的知识乐园',
+               # self.t_top, self.t_left, self.t_width, self.t_height
+               loc=[363, 843, 428, 228],
+               font=['simhei.ttf', 'SimHei'], fontsize=14 * 3,
+               font_type='000',
+               font_color='#000000', input_dir='./data_for_test/white.png',
+               output_dir='result/123.png').run()
