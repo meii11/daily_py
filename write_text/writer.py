@@ -132,10 +132,14 @@ class TextWriter:
         self._perprocess()
 
     def _perprocess(self):
+        print(f"input_dir: {self.intput_dir}")
+        print(f"output_dir: {self.output_dir}")
         text_tools = TextTools(font=os.path.join("../../font_library", self.font[0]), font_size=self.font_size,
                                width=self.t_width)
         allText, total_height, line_height, total_lines, max_line_width, all_line_width = text_tools.split_text(
             self.content)
+        line_height_amendment = (self.font_size * 0.15) / 2
+        line_height_fixed = self.font_size  # 把一个字当作一个正方形来处理
         allText_length = len(allText)
         if self.alignment == '0':  # 左对齐，直接写不用计算
             self._writer(allText=allText,
@@ -145,7 +149,8 @@ class TextWriter:
                          output_dir=self.output_dir)
         else:
             stardand_left = self.t_left  # 记录标准坐标
-            stardand_top = self.t_top + line_height
+            # stardand_top = self.t_top + line_height
+            stardand_top = self.t_top + line_height_fixed + line_height_amendment
             height_record = 0
             ind = 0
             new_top = 0
@@ -171,7 +176,8 @@ class TextWriter:
                                  new_top=new_top,
                                  input_dir=input_dir,
                                  output_dir=output_dir)
-                    height_record += line_height
+                    # height_record += line_height
+                    height_record += line_height_fixed + line_height_amendment
                     ind += 1
                 else:  # 不是满行需要对齐，因为是当作独立的行来做的，因此只需要计算坐标即可
                     new_top = stardand_top + height_record
@@ -188,7 +194,8 @@ class TextWriter:
                                  input_dir=input_dir,
                                  output_dir=output_dir)
                     ind += 1
-                    height_record += line_height
+                    # height_record += line_height
+                    height_record += line_height_fixed + line_height_amendment
 
     def _writer(self, allText, new_left, new_top, input_dir, output_dir):
         base_dir = os.path.split(output_dir)[0]
@@ -337,9 +344,9 @@ if __name__ == '__main__':
          'duration': 5,
          'font_size': 14, 'layer_order': 2, 'is_animation': 'false', 'bold': 'true', 'italic': 'true',
          'underline': 'true'},
-    # os.system(
-    #     f"/usr/local/bin/ffmpeg -y -i ./data_for_test/white.png -vf \"ass=result/0_subtitles.ass:fontsdir=../../font_library/\" -loglevel error 222.png")
-    TextWriter(content='童趣屋：\n\n为小朋友打造的知识乐园',
+    # os.system( f"/usr/local/bin/ffmpeg -y -i ./data_for_test/white.png -vf
+    # \"ass=result/0_subtitles.ass:fontsdir=../../font_library/\" -loglevel error 222.png")
+    TextWriter(content='童趣屋,\n 为小孩子们打造的欢乐世界\n123\nabc\nhhh',
                # self.t_top, self.t_left, self.t_width, self.t_height
                loc=[363, 843, 428, 228],
                font=['simhei.ttf', 'SimHei'], fontsize=14 * 3,
