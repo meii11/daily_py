@@ -1,3 +1,3 @@
 # Intro
 
-For my daily coding record.
+My daily coding records.
