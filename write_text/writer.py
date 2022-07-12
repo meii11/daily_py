@@ -41,6 +41,8 @@ class TextTools:
         line_height = 0
         line_width = []  # 用于记录当前文本段中，每一行的宽度，两种情况会记录，一是长度到了自动换行时，二是到最后一个字了
         for ind in range(len(text)):
+            if sum_width == 0 and text[ind] == ' ':
+                continue
 
             width, height = draw.textsize(text[ind], self.font)
             sum_width += width
@@ -138,8 +140,9 @@ class TextWriter:
                                width=self.t_width)
         allText, total_height, line_height, total_lines, max_line_width, all_line_width = text_tools.split_text(
             self.content)
-        line_height_amendment = (self.font_size * 0.15) / 2
-        line_height_fixed = self.font_size  # 把一个字当作一个正方形来处理
+        line_height_amendment = (self.font_size * 1.15 - line_height) / 2
+        # line_height_fixed = self.font_size  # 把一个字当作一个正方形来处理，似乎不行
+        line_height_fixed = line_height  # 把一个字当作一个正方形来处理，似乎不行
         allText_length = len(allText)
         if self.alignment == '0':  # 左对齐，直接写不用计算
             self._writer(allText=allText,
@@ -334,22 +337,25 @@ def write_ass(bkg_info, text_info, output_dir):
 
 
 if __name__ == '__main__':
-    a = {'top': 1025,
-         'font': '黑体',
-         'left': 53,
-         'color': '#ffffff',
-         'width': 760,
-         'height': 165,
-         'content': '生态奇妙屋：\n汇聚了来自不同地域的植物标本',
+    a = {'top': 933,
+         'bold': 'false',
+         'font': '阿朱泡泡体',
+         'left': 455,
+         'color': '#e33b64',
+         'width': 315,
+         'height': 433,
+         'italic': 'false',
+         'content': '测试 红色 22号 看看吧 看看吧 看看吧 看啊看啊 看看 看看看a',
          'duration': 5,
-         'font_size': 14, 'layer_order': 2, 'is_animation': 'false', 'bold': 'true', 'italic': 'true',
-         'underline': 'true'},
-    # os.system( f"/usr/local/bin/ffmpeg -y -i ./data_for_test/white.png -vf
-    # \"ass=result/0_subtitles.ass:fontsdir=../../font_library/\" -loglevel error 222.png")
-    TextWriter(content='童趣屋,\n 为小孩子们打造的欢乐世界\n123\nabc\nhhh',
+         'alignment': '0',
+         'font_size': 22,
+         'underline': 'false', 'layer_order': 5, 'is_animation': 'false'}
+    print(3.1//2)
+    # os.system(f"ffmpeg -i ./data_for_test/white.png -vf scale=1080:1920 ./data_for_test/white_1080_1920.png")
+    TextWriter(content='测试 红色 22号 看看吧 看看吧 看看吧 看啊看啊 看看 看看看a',
                # self.t_top, self.t_left, self.t_width, self.t_height
-               loc=[363, 843, 428, 228],
-               font=['simhei.ttf', 'SimHei'], fontsize=14 * 3,
+               loc=[933, 455, 315, 433],
+               font=['阿朱泡泡体.ttf', 'AZPPT_1_1436212_19'], fontsize=22 * 3,
                font_type='000',
-               font_color='#000000', input_dir='./data_for_test/white.png',
+               font_color='#e33b64', input_dir='./data_for_test/white_1080_1920.png',
                output_dir='result/123.png').run()
