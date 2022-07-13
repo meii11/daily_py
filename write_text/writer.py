@@ -40,32 +40,40 @@ class TextTools:
         line_count = 1
         line_height = 0
         line_width = []  # 用于记录当前文本段中，每一行的宽度，两种情况会记录，一是长度到了自动换行时，二是到最后一个字了
+        length_of_text = len(text)
+        ind = 0
+        list_of_text = list(text)
+        word_now = ''
+        while list_of_text:
+            word_former = word_now
+            word_now = list_of_text.pop(0)
 
-        for ind in range(len(text)):
-            if sum_width == 0 and text[ind] == ' ':
+            if sum_width == 0 and word_now == ' ':
                 continue
-            tt = text[ind]
-            width, height = draw.textsize(text[ind], self.font)
+            width, height = draw.textsize(word_now, self.font)
 
             sum_width += width
-            paragraph += text[ind]
+            paragraph += word_now
             line_height = max(height, line_height)
-            if ind < len(text) - 1:
-                next_width, _ = draw.textsize(text[ind + 1], self.font)
+
+            if ind < len(list_of_text) - 1:
+                next_width, _ = draw.textsize(word_now, self.font)
                 if next_width == 0 and _ != 0:
-                    next_width, _ = draw.textsize(text[ind], self.font)
+                    next_width, _ = draw.textsize(word_former, self.font)
             else:
                 next_width = 0  # 最后一个字了
             if sum_width + next_width > self.width:  # 超过预设宽度就修改段落 以及当前行数
                 # 但是当下一个字符为标点符号时，改字直接换行和下一个标点符号一起
 
-                if ind < len(text) - 1 and text[ind + 1] in [',', '.', '，', '。', ':', '：']:
+                if ind < len(list_of_text) - 1 and list_of_text[0] in [',', '.', '，', '。', ':', '：']:
                     paragraph = ''.join(list(paragraph)[:-1])  # 该字段不计入
                     # text = list(text)
-                    insert_text = list(text).copy()  # 将去掉的字加到下一行中
-                    insert_text.insert(ind + 1, text[ind])
-                    text = ''.join(insert_text)
+                    # insert_text = list(text).copy()  # 将去掉的字加到下一行中
+                    # insert_text.insert(ind + 1, text[ind])
+                    # text = ''.join(insert_text)
+                    list_of_text.insert(0, word_now)
                     sum_width -= width
+                    length_of_text += 1
 
                 line_count += 1
                 line_width.append(sum_width)
@@ -73,7 +81,7 @@ class TextTools:
                 paragraph += '[split]'
 
             # 最后一个字
-            if ind == len(text) - 1:
+            if ind == len(list_of_text) - 1:
                 line_width.append(sum_width)
 
         if not paragraph.endswith('\n'):
@@ -122,7 +130,6 @@ class TextTools:
             y += line_height * line_count
 
         return note_img
-
 
 class TextWriter:
     def __init__(self, content, loc, font, font_type, fontsize, font_color, input_dir, output_dir, alignment='1'):
@@ -357,10 +364,33 @@ if __name__ == '__main__':
               'order': 1,
               'lay_out': {
                   'text': [
-                      {'top': 530, 'bold': 'false', 'font': 'simhei', 'left': 322, 'color': '#ffffff', 'width': 500, 'height': 340, 'italic': 'false', 'content': '测试测试测试测试测，试测试测试', 'duration': 5, 'alignment': '0', 'font_size': 18, 'underline': 'false', 'layer_order': 2, 'is_animation': 'false'},
-                      {'top': 375, 'bold': 'false', 'font': 'simhei', 'left': 102, 'color': '#ffeb3b', 'width': 100, 'height': 670, 'italic': 'false', 'content': '测试测试测试自动回车1231231231231231222', 'duration': 5, 'alignment': '0', 'font_size': 18, 'underline': 'false', 'layer_order': 9, 'is_animation': 'false'},
-                      {'top': 585, 'bold': 'true', 'font': 'simhei', 'left': 865, 'color': '#e5e5e5', 'width': 487, 'height': 365, 'italic': 'true', 'content': '测试测试中对齐中对，齐', 'duration': 5, 'alignment': '1', 'font_size': 18, 'underline': 'true', 'layer_order': 6, 'is_animation': 'false'},
-                      {'top': 682, 'bold': 'false', 'font': 'simhei', 'left': 1422, 'color': '#433ecc', 'width': 462, 'height': 347, 'italic': 'false', 'content': '测试测，，试右对齐', 'duration': 5, 'alignment': '2', 'font_size': 24, 'underline': 'false', 'layer_order': 8, 'is_animation': 'false'}], 'charts': [], 'images': [{'top': 0, 'url': 'https://public-1255423687.cos.ap-shanghai.myqcloud.com/bg_import_1652364804024.jpg', 'crop': {}, 'left': 0, 'text': {}, 'width': 1920, 'height': 1080, 'duration': 30, 'layer_order': 0}], 'videos': [], 'persons': [{'id': 'huayuan8_mouth', 'top': 37, 'crop': {'top': 23, 'left': 91, 'width': 524, 'circle': 'true', 'height': 524}, 'left': 10, 'text': {'content': '测试文本'}, 'audio': 'maoxiaomei', 'speed': 1, 'width': 285, 'height': 285, 'duration': 5, 'layer_order': 4}]}, 'batch_no': '996053086667538432'}], 'batch_no': '996053086667538432', 'resolution': '1920*1080', 'video_type': 'mp4', 'time_now': '16_35_5', 'base': '/data/caopei/1-code/0_BGC_chopei/local/996053086667538432'}
+                      {'top': 530, 'bold': 'false', 'font': 'simhei', 'left': 322, 'color': '#ffffff', 'width': 500,
+                       'height': 340, 'italic': 'false', 'content': '测试测试测试测试测，试测试测试', 'duration': 5, 'alignment': '0',
+                       'font_size': 18, 'underline': 'false', 'layer_order': 2, 'is_animation': 'false'},
+                      {'top': 375, 'bold': 'false', 'font': 'simhei', 'left': 102, 'color': '#ffeb3b', 'width': 100,
+                       'height': 670, 'italic': 'false', 'content': '测试测试测试自动回车1231231231231231222', 'duration': 5,
+                       'alignment': '0', 'font_size': 18, 'underline': 'false', 'layer_order': 9,
+                       'is_animation': 'false'},
+                      {'top': 585, 'bold': 'true', 'font': 'simhei', 'left': 865, 'color': '#e5e5e5', 'width': 487,
+                       'height': 365, 'italic': 'true', 'content': '测试测试中对齐中对，齐', 'duration': 5, 'alignment': '1',
+                       'font_size': 18, 'underline': 'true', 'layer_order': 6, 'is_animation': 'false'},
+                      {'top': 682, 'bold': 'false', 'font': 'simhei', 'left': 1422, 'color': '#433ecc', 'width': 462,
+                       'height': 347, 'italic': 'false', 'content': '测试测，，试右对齐', 'duration': 5, 'alignment': '2',
+                       'font_size': 24, 'underline': 'false', 'layer_order': 8, 'is_animation': 'false'}], 'charts': [],
+                  'images': [{'top': 0,
+                              'url': 'https://public-1255423687.cos.ap-shanghai.myqcloud.com/bg_import_1652364804024.jpg',
+                              'crop': {}, 'left': 0, 'text': {}, 'width': 1920, 'height': 1080, 'duration': 30,
+                              'layer_order': 0}], 'videos': [], 'persons': [{'id': 'huayuan8_mouth', 'top': 37,
+                                                                             'crop': {'top': 23, 'left': 91,
+                                                                                      'width': 524, 'circle': 'true',
+                                                                                      'height': 524}, 'left': 10,
+                                                                             'text': {'content': '测试文本'},
+                                                                             'audio': 'maoxiaomei', 'speed': 1,
+                                                                             'width': 285, 'height': 285, 'duration': 5,
+                                                                             'layer_order': 4}]},
+              'batch_no': '996053086667538432'}], 'batch_no': '996053086667538432', 'resolution': '1920*1080',
+         'video_type': 'mp4', 'time_now': '16_35_5',
+         'base': '/data/caopei/1-code/0_BGC_chopei/local/996053086667538432'}
     print(3.1 // 2)
     # os.system(f"ffmpeg -i ./data_for_test/white.png -vf scale=1080:1920 ./data_for_test/white_1080_1920.png")
     # {"Mengshen-HanSerif": ["Mengshen-HanSerif.ttf", "Mengshen-Regular"],
@@ -381,10 +411,10 @@ if __name__ == '__main__':
     #  "阿朱泡泡体": ["阿朱泡泡体.ttf", "AZPPT_1_1436212_19"],
     #  "逐浪萌芽字": ["逐浪萌芽字.ttf", "ZoomlaMengyas-A080"]}
 
-    TextWriter(content='测试测，，试右对齐',
+    TextWriter(content='测试测试测试测试测，试测试测试',
                # self.t_top, self.t_left, self.t_width, self.t_height
-               loc=[682, 1422, 462, 347],
-               font=["simhei.ttf", "SimHei"], fontsize=24 * 3,
+               loc=[530, 322, 500, 340],
+               font=["simhei.ttf", "SimHei"], fontsize=18 * 3,
                font_type='000',
                font_color='#e33b64', input_dir='./data_for_test/white.png',
                output_dir='result/123.png').run()
