@@ -23,6 +23,7 @@ class TextTools:
     def __init__(self, font, font_size, width):
         self.font = ImageFont.truetype(font, font_size)
         self.width = width
+        self.font_size = font_size
         # 预设宽度 可以修改成你需要的图片宽度
         # self.width = 300
         # # 文本
@@ -48,16 +49,16 @@ class TextTools:
             word_former = word_now
             word_now = list_of_text.pop(0)
 
-            if sum_width == 0 and word_now == ' ':
+            if sum_width == 0 and word_now == ' ':  # 空格则跳过
                 continue
             width, height = draw.textsize(word_now, self.font)
-
+            width = self.font_size
             sum_width += width
             paragraph += word_now
             line_height = max(height, line_height)
 
             if ind < len(list_of_text) - 1:
-                next_width, _ = draw.textsize(word_now, self.font)
+                next_width, _ = draw.textsize(list_of_text[0], self.font)
                 if next_width == 0 and _ != 0:
                     next_width, _ = draw.textsize(word_former, self.font)
             else:
@@ -73,7 +74,6 @@ class TextTools:
                     # text = ''.join(insert_text)
                     list_of_text.insert(0, word_now)
                     sum_width -= width
-                    length_of_text += 1
 
                 line_count += 1
                 line_width.append(sum_width)
@@ -131,12 +131,13 @@ class TextTools:
 
         return note_img
 
+
 class TextWriter:
-    def __init__(self, content, loc, font, font_type, fontsize, font_color, input_dir, output_dir, alignment='1'):
+    def __init__(self, content, loc, font, font_type, fontsize, font_color, input_dir, output_dir, alignment='0'):
         self.content = content
         self.t_top, self.t_left, self.t_width, self.t_height = loc
-        self.t_top += 5
-        self.t_left += 5
+        # self.t_top += 5
+        # self.t_left += 5
         self.font_type = font_type
         self.font = font
         self.font_size = fontsize
@@ -165,61 +166,117 @@ class TextWriter:
         # line_height_fixed = self.font_size  # 把一个字当作一个正方形来处理，似乎不行
         line_height_fixed = line_height  # 把一个字当作一个正方形来处理，似乎不行
         allText_length = len(allText)
-        if self.alignment == '0':  # 左对齐，直接写不用计算
-            self._writer(allText=allText,
-                         new_left=self.t_left,
-                         new_top=self.t_top + total_height,
-                         input_dir=self.intput_dir,
-                         output_dir=self.output_dir)
-        else:
-            stardand_left = self.t_left  # 记录标准坐标
-            # stardand_top = self.t_top + line_height
-            stardand_top = self.t_top + line_height_fixed + line_height_amendment
-            height_record = 0
-            ind = 0
-            new_top = 0
-            base_dir = os.path.split(self.output_dir)[0]
-            for text in allText:
-                if text == ' ':
-                    height_record += line_height
-                    ind += 1
-                    continue
-                _, _, line_height, _, _, all_line_width = text_tools.split_text(text)
-                if all_line_width[0] == max_line_width:  # 如果是满行，则直接写
-                    new_top = stardand_top + height_record
-                    new_left = self._count_offset(text_width=all_line_width,
-                                                  max_width=max_line_width,
-                                                  alignment=self.alignment) + self.t_left
+        # if self.alignment == '0':  # 左对齐，直接写不用计算
+        #     self._writer(allText=allText,
+        #                  new_left=self.t_left,
+        #                  new_top=self.t_top + total_height,
+        #                  input_dir=self.intput_dir,
+        #                  output_dir=self.output_dir)
+        # else:
+        #     stardand_left = self.t_left  # 记录标准坐标
+        #     # stardand_top = self.t_top + line_height
+        #     stardand_top = self.t_top + line_height_fixed + line_height_amendment
+        #     height_record = 0
+        #     ind = 0
+        #     new_top = 0
+        #     base_dir = os.path.split(self.output_dir)[0]
+        #     for text in allText:
+        #         if text == ' ':
+        #             height_record += line_height
+        #             ind += 1
+        #             continue
+        #         _, _, line_height, _, _, all_line_width = text_tools.split_text(text)
+        #         if all_line_width[0] == max_line_width:  # 如果是满行，则直接写
+        #             new_top = stardand_top + height_record
+        #             new_left = self._count_offset(text_width=all_line_width,
+        #                                           max_width=max_line_width,
+        #                                           alignment=self.alignment) + self.t_left
+        #
+        #             input_dir = os.path.join(base_dir, f'writer_{ind}.' + self.media_type) if ind != 0 else \
+        #                 self.intput_dir
+        #             output_dir = os.path.join(base_dir, f'writer_{ind + 1}.' + self.media_type) \
+        #                 if ind < allText_length - 1 else self.output_dir
+        #             self._writer(allText=text,
+        #                          new_left=new_left,
+        #                          new_top=new_top,
+        #                          input_dir=input_dir,
+        #                          output_dir=output_dir)
+        #             # height_record += line_height
+        #             height_record += line_height_fixed + line_height_amendment
+        #             ind += 1
+        #         else:  # 不是满行需要对齐，因为是当作独立的行来做的，因此只需要计算坐标即可
+        #             new_top = stardand_top + height_record
+        #             new_left = self._count_offset(text_width=all_line_width,
+        #                                           max_width=max_line_width,
+        #                                           alignment=self.alignment) + self.t_left
+        #             input_dir = os.path.join(base_dir, f'writer_{ind}.' + self.media_type) if ind != 0 else \
+        #                 self.intput_dir
+        #             output_dir = os.path.join(base_dir, f'writer_{ind + 1}.' + self.media_type) \
+        #                 if ind < allText_length - 1 else self.output_dir
+        #             self._writer(allText=text,
+        #                          new_left=new_left,
+        #                          new_top=new_top,
+        #                          input_dir=input_dir,
+        #                          output_dir=output_dir)
+        #             ind += 1
+        #             # height_record += line_height
+        #             height_record += line_height_fixed + line_height_amendment
 
-                    input_dir = os.path.join(base_dir, f'writer_{ind}.' + self.media_type) if ind != 0 else \
-                        self.intput_dir
-                    output_dir = os.path.join(base_dir, f'writer_{ind + 1}.' + self.media_type) \
-                        if ind < allText_length - 1 else self.output_dir
-                    self._writer(allText=text,
-                                 new_left=new_left,
-                                 new_top=new_top,
-                                 input_dir=input_dir,
-                                 output_dir=output_dir)
-                    # height_record += line_height
-                    height_record += line_height_fixed + line_height_amendment
-                    ind += 1
-                else:  # 不是满行需要对齐，因为是当作独立的行来做的，因此只需要计算坐标即可
-                    new_top = stardand_top + height_record
-                    new_left = self._count_offset(text_width=all_line_width,
-                                                  max_width=max_line_width,
-                                                  alignment=self.alignment) + self.t_left
-                    input_dir = os.path.join(base_dir, f'writer_{ind}.' + self.media_type) if ind != 0 else \
-                        self.intput_dir
-                    output_dir = os.path.join(base_dir, f'writer_{ind + 1}.' + self.media_type) \
-                        if ind < allText_length - 1 else self.output_dir
-                    self._writer(allText=text,
-                                 new_left=new_left,
-                                 new_top=new_top,
-                                 input_dir=input_dir,
-                                 output_dir=output_dir)
-                    ind += 1
-                    # height_record += line_height
-                    height_record += line_height_fixed + line_height_amendment
+        # line_height_amendment = (self.font_size * 1.15 - line_height) // 2
+        line_height_amendment = (self.font_size * 1.35 - self.font_size) // 2
+        # line_height_fixed = line_height
+        line_height_fixed = self.font_size
+
+        stardand_left = self.t_left  # 记录标准坐标
+        # stardand_top = self.t_top + line_height
+        stardand_top = self.t_top + line_height_fixed + line_height_amendment
+        height_record = 0
+        ind = 0
+        new_top = 0
+        base_dir = os.path.split(self.output_dir)[0]
+        for text in allText:
+            if text == ' ':
+                height_record += line_height_fixed + line_height_amendment
+                allText_length -= 1
+                continue
+            _, _, line_height, _, _, all_line_width = text_tools.split_text(text)
+            if all_line_width[0] == max_line_width:  # 如果是满行，则直接写
+                new_top = stardand_top + height_record
+                new_left = self._count_offset(text_width=all_line_width,
+                                              max_width=max_line_width,
+                                              alignment=self.alignment) + self.t_left
+
+                input_dir = os.path.join(base_dir, f'writer_{ind}.' + self.media_type) if ind != 0 else \
+                    self.intput_dir
+                output_dir = os.path.join(base_dir, f'writer_{ind + 1}.' + self.media_type) \
+                    if ind < allText_length - 1 else self.output_dir
+                self._writer(allText=text,
+                             new_left=new_left,
+                             new_top=new_top,
+                             input_dir=input_dir,
+                             output_dir=output_dir)
+
+            else:  # 不是满行需要对齐，因为是当作独立的行来做的，因此只需要计算坐标即可
+                new_top = stardand_top + height_record
+                new_left = self._count_offset(text_width=all_line_width,
+                                              max_width=max_line_width,
+                                              alignment=self.alignment) + self.t_left
+                input_dir = os.path.join(base_dir, f'writer_{ind}.' + self.media_type) if ind != 0 else \
+                    self.intput_dir
+                output_dir = os.path.join(base_dir, f'writer_{ind + 1}.' + self.media_type) \
+                    if ind < allText_length - 1 else self.output_dir
+                self._writer(allText=text,
+                             new_left=new_left,
+                             new_top=new_top,
+                             input_dir=input_dir,
+                             output_dir=output_dir)
+                # ind += 1
+                # height_record += line_height
+                # os.system(f"rm -f {input_dir}")
+
+            height_record += line_height_fixed + line_height_amendment
+            ind += 1
+            os.system(f"rm -f {input_dir}")
 
     def _writer(self, allText, new_left, new_top, input_dir, output_dir):
         base_dir = os.path.split(output_dir)[0]
@@ -272,9 +329,11 @@ class TextWriter:
         if alignment == '1':  # 居中
             space_text = (self.t_width - max_width) // 2
             return (max_width - text_width[0]) // 2 + space_text
-        else:  # 右对齐
+        elif alignment == '2':  # 右对齐
             space_text = (self.t_width - max_width)
             return max_width - text_width[0] + space_text
+        else:
+            return 0
 
 
 def s2hms(x):  # 把秒转为时分秒
@@ -391,8 +450,11 @@ if __name__ == '__main__':
               'batch_no': '996053086667538432'}], 'batch_no': '996053086667538432', 'resolution': '1920*1080',
          'video_type': 'mp4', 'time_now': '16_35_5',
          'base': '/data/caopei/1-code/0_BGC_chopei/local/996053086667538432'}
-    print(3.1 // 2)
-    # os.system(f"ffmpeg -i ./data_for_test/white.png -vf scale=1080:1920 ./data_for_test/white_1080_1920.png")
+    # os.system(f"ffmpeg -y -i ./data_for_test/white.png -vf scale=1080:1920 -loglevel error "
+    #           f"./data_for_test/white_1080_1920.png")
+
+    os.system(f"ffmpeg -y -i ./data_for_test/bgbg.jpeg -vf scale=1080:1920 -loglevel error "
+              f"./data_for_test/bgbg_1080_1920.png")
     # {"Mengshen-HanSerif": ["Mengshen-HanSerif.ttf", "Mengshen-Regular"],
     #  "simsun": ["simsun.ttc", "SimSun"],
     #  "宋体": ["simsun.ttc", "SimSun"],
@@ -411,10 +473,25 @@ if __name__ == '__main__':
     #  "阿朱泡泡体": ["阿朱泡泡体.ttf", "AZPPT_1_1436212_19"],
     #  "逐浪萌芽字": ["逐浪萌芽字.ttf", "ZoomlaMengyas-A080"]}
 
-    TextWriter(content='测试测试测试测试测，试测试测试',
+    TextWriter(content='而今天的这款第五代芭妮兰卸妆膏功能不仅是卸妆，,.。！!?？还可以清洁黑头雾霾，上脸秒乳化，达到深度清洁的功效！而且宝宝们不用'
+                       '担心成分，我们的卸妆膏富含比利时矿物温泉水和西印度樱桃,卸妆的同时还可以为肌肤注入天然植萃保湿修复力,保证卸后水润'
+                       '不紧绷，都是不添加任何酒精、矿物油或人工色素的。而今天的这款第五代芭妮兰卸妆膏功能不仅是卸妆，还可以清洁黑头雾霾'
+                       '，上脸秒乳化，达到深度清洁的功效！而且宝宝们不用担心成分，我们的卸妆膏富含比利时矿物温泉水和西印度樱桃,卸妆的同时'
+                       '还可以为肌肤注入天然植萃保湿修复力,保证卸后水润不紧绷，都是不添加任何酒精、矿物油或人工色素的。而今天的这款第五代'
+                       '芭妮兰卸妆膏功能不仅是卸妆，还可以清洁黑头雾霾，上脸秒乳化，达到深度清洁的功效！而且宝宝们不用担心成分，我们的卸妆'
+                       '膏富含比利时矿物温泉水和西印度樱桃,卸妆的同时还可以为肌肤注入天然植萃保湿修复力,保证卸后水润不紧绷，都是不添加任'
+                       '何酒精、矿物油或人工色素的。而今天的这款第五代芭妮兰卸妆膏功能不仅是卸妆，还可以清洁黑头雾霾，上脸秒乳化，达到深度'
+                       '清洁的功效！而且宝宝们不用担心成分，我们的卸妆膏富含比利时矿物温泉水和西印度樱桃,卸妆的同时',
                # self.t_top, self.t_left, self.t_width, self.t_height
-               loc=[530, 322, 500, 340],
-               font=["simhei.ttf", "SimHei"], fontsize=18 * 3,
+               loc=[370, 100, 900, 1490],
+               # "SourceHanSerif-Regular.ttc", "Source Han Serif SC"
+               # "simhei.ttf", "SimHei"
+               font=["SourceHanSerif-Regular.ttc", "Source Han Serif SC"], fontsize=15 * 3,
                font_type='000',
-               font_color='#e33b64', input_dir='./data_for_test/white.png',
-               output_dir='result/123.png').run()
+               font_color='#e33b64', input_dir='./data_for_test/bgbg_1080_1920.png',
+               output_dir='result/regular_1.png').run()
+
+    os.system(
+        f"ffmpeg -y -i 'result/regular_1.png' "
+        f"-vf 'drawbox=x=100:y=370:w=900:h=1490:color=red' -loglevel error "
+        f"'result/regular_1_bbox.png'")

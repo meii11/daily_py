@@ -12,7 +12,7 @@ import os
 
 def main():
     # PIL.ImageFont.truetype(font=None, size=10, index=0, encoding=”)
-    font = './font_library/阿朱泡泡体.ttf'
+    font = '../../font_library/SourceHanSerifSC-Regular.otf'
     a = PIL.ImageFont.truetype(font=font, size=10, index=0)
     print(a.font.family)
     # # pass
