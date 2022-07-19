@@ -14,7 +14,9 @@ from tqdm import tqdm
 
 
 def main():
-    image_dir = '../../PhotoMatte85_original'
+    # resize()
+
+    image_dir = '../../PhotoMatte85_reshape_original'
     """
     1. 构建alpha通道图
     2. 给每张图像添加纯绿色背景以及渐变白色背景（取最高值白色到最低值白色）
@@ -29,27 +31,67 @@ def main():
     #     img_dir, img = os.path.split(img)
     #     img_name, img_type = os.path.splitext(img)
 
-    # for bkg in bkg_name:
-    #     _get_diff_bkg(video=os.path.join(bkg_dir, bkg[0]), tag=bkg[1])
+    for bkg in bkg_name:
+        _get_diff_bkg(video=os.path.join(bkg_dir, bkg[0]), tag=bkg[1])
 
     # for img in tqdm(img_list):
     #     overlay(img)
 
     # 打包之前的文件
-    # package()
+    package()
 
     # 产生随机数
-    # re = list(np.random.randint(5, 10, [340]))
-    # f = open('./random_arr.txt', 'w')
-    # f.write(str(re))
-    # f.close()
+    re = list(np.random.randint(1, 3, [340]))
+    f = open('./random_arr.txt', 'w')
+    f.write(str(re))
+    f.close()
     frame_repeat()
-    pass
+    check()
+    # pass
+
+
+def resize():
+    image_dir = '../../PhotoMatte85_original'
+
+    files = glob.glob(f"{image_dir}/*png")
+
+    for file in files:
+        out_dir = '../../PhotoMatte85_reshape_original'
+        output = os.path.split(file)
+
+        output_dir = os.path.join(out_dir, output[1])
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        os.system(f"ffmpeg -y -i {file} -vf scale=768:-1,crop=768:1080:0:72 -loglevel error {output_dir}")
+
+
+def check():
+    target_train_dir = '../../unidt_dataset_chomeii/train'
+
+    target_train_dir_fgr_bkg = os.path.join(target_train_dir, 'fgr_bkg')
+    target_train_dir_fgr = os.path.join(target_train_dir, 'fgr')
+    target_train_dir_pha = os.path.join(target_train_dir, 'pha')
+
+    random_repeat_list = eval(open('./random_arr.txt', 'r').readline())
+    ind = 0
+
+    for _, dirs, _ in os.walk(target_train_dir_fgr_bkg):
+        for _dir in tqdm(dirs):
+            fgr = os.path.join(target_train_dir_fgr, _dir)
+            fgr_bkg = os.path.join(target_train_dir_fgr_bkg, _dir)
+            pha = os.path.join(target_train_dir_pha, _dir)
+
+            assert len(glob.glob(f"{fgr}/*png")) == len(glob.glob(f"{fgr_bkg}/*png")) == len(glob.glob(f"{pha}/*png")), \
+                f"长度不相同！{_dir}"
+
+            assert len(glob.glob(f"{fgr}/*png")) == random_repeat_list[ind] * 25, f"长度不相同！{_dir}"
+            ind += 1
 
 
 def package():
-    img_alpha_dir = '../../PhotoMatte85'
-    img_wi_bkg_dir = '../../PhotoMatte85_original_wi_bkg'
+    img_alpha_dir = '../../PhotoMatte85_reshape'
+    img_wi_bkg_dir = '../../PhotoMatte85_reshape_original_wi_bkg'
     bkg_dir = '../../diff_bkg'
 
     target_train_dir = '../../unidt_dataset_chomeii/train'
@@ -157,9 +199,9 @@ def _get_diff_bkg(video, tag):
 
             # cv2.imwrite(output_dir, pure_bkg)
             tmp = './tmp.png'
-            cv2.imwrite(tmp, pure_bkg)
-            os.system(f"ffmpeg -y -i {tmp} -vf scale=2304:3456 {output_dir}")
-            os.system(f"rm -f {tmp}")
+            cv2.imwrite(output_dir, pure_bkg)
+            # os.system(f"ffmpeg -y -i {tmp} -vf scale=2304:3456 {output_dir}")
+            # os.system(f"rm -f {tmp}")
         elif tag == 2:
             # pixel_left_top_corner = frame[0][0]
             # pixel_left_bottom_corner = frame[-1][0]
@@ -181,9 +223,9 @@ def _get_diff_bkg(video, tag):
             if os.path.isfile(output_dir):
                 output_dir = os.path.join(outdir, 'gradual_0.png')
 
-            cv2.imwrite(tmp, pixel_final)
-            os.system(f"ffmpeg -y -i {tmp} -vf scale=2304:3456 {output_dir}")
-            os.system(f"rm -f {tmp}")
+            cv2.imwrite(output_dir, pixel_final)
+            # os.system(f"ffmpeg -y -i {tmp} -vf scale=2304:3456 {output_dir}")
+            # os.system(f"rm -f {tmp}")
     # video_reader.release()
 
 
