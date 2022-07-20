@@ -39,7 +39,6 @@ def main():
 
     # 打包之前的文件
     package()
-
     # 产生随机数
     re = list(np.random.randint(1, 3, [340]))
     f = open('./random_arr.txt', 'w')
